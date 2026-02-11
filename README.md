@@ -104,3 +104,5 @@ A: demo final | B: defensa + puente a Spark/Big Data
 - NASA Exoplanet Archive: TAP + PSCompPars (semántica y cálculos). 
 
 - Kimball Group (técnicas): star schema/facts/dims (solo lo esencial)
+
+El libro de Martin Kleppmann y otros 9 que conplementan muy bien el contenido del curso los encuentran en el [LINK](https://drive.google.com/drive/folders/1mALy-WvMivcfmxSqoFAgTbKzgHA-NJhP?usp=sharing)

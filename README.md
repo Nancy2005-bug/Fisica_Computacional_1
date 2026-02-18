@@ -43,7 +43,7 @@ python -m src.pipelines.silver_to_gold
 
 **W01:**
 
-* :white_check_mark: W01B — Bronze/Raw: ingesta + trazabilidad + sanity checks (DDIA Cap. 1)
+* :white_check_mark: W01A — Introducción (DDIA Cap. 1) + Entorno local + Evidencia
 
 * :white_check_mark: W01B — Bronze/Raw: ingesta + trazabilidad + sanity checks (DDIA Cap. 1)
 

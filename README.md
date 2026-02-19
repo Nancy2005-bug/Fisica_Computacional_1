@@ -47,6 +47,8 @@ python -m src.pipelines.silver_to_gold
 
 * :white_check_mark: W01B — Bronze/Raw: ingesta + trazabilidad + sanity checks (DDIA Cap. 1)
 
+* :white_check_mark: W02 – SQL esencial I en DuckDB (SELECT/WHERE/GROUP BY/NULLs) 
+
 ---
 
 ## Notas

@@ -34,3 +34,11 @@
 - **Evidencia:** Celda 3 del notebook W01B — `CREATE OR REPLACE VIEW raw_ps AS SELECT * FROM read_csv_auto(...)`.
 
 ---
+
+## Decisión 4: usar MEDIAN() en lugar de AVG() para el periodo orbital
+
+**Decisión:** reportar `MEDIAN(pl_orbper)` como estadística central en el resumen por método de descubrimiento.
+
+**Razón:** la distribución de periodos orbitales es fuertemente asimétrica, hay planetas con periodos de horas y otros de miles de días. El promedio es arrastrado por esos extremos y no representa al planeta típico de cada método. La mediana es más robusta y honesta como métrica de resumen.
+
+**Evidencia:** para el método Transit, `AVG(pl_orbper)` supera los 30 días arrastrado por outliers, mientras que `MEDIAN(pl_orbper)` ≈ 5.8 días, valor más representativo de los planetas de tránsito conocidos.

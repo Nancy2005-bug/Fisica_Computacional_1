@@ -53,3 +53,30 @@
 - **Alternativas rechazadas:**
   - Confiar en que la tabla ya es única sin verificar → no detecta duplicados introducidos en el ETL.
   - Usar `SELECT DISTINCT` directamente en el JOIN sin diagnosticar → oculta el problema en lugar de resolverlo.
+- **Evidencia:**
+
+```sql
+-- Query de diagnóstico: detecta hostnames duplicados en dim_host_bad
+WITH c AS (
+    SELECT hostname, COUNT(*) AS cnt
+    FROM dim_host_bad
+    GROUP BY hostname
+)
+SELECT * FROM c
+WHERE cnt > 1
+ORDER BY cnt DESC
+LIMIT 10;
+```
+
+| hostname   | cnt |
+| ---------- | --- |
+| KOI-351    | 8   |
+| TRAPPIST-1 | 7   |
+| HD 110067  | 6   |
+| HD 191939  | 6   |
+| TOI-178    | 6   |
+| HD 10180   | 6   |
+| Kepler-20  | 6   |
+| Kepler-11  | 6   |
+| HIP 41378  | 6   |
+| HD 219134  | 6   |

@@ -42,3 +42,14 @@
 **Razón:** la distribución de periodos orbitales es fuertemente asimétrica, hay planetas con periodos de horas y otros de miles de días. El promedio es arrastrado por esos extremos y no representa al planeta típico de cada método. La mediana es más robusta y honesta como métrica de resumen.
 
 **Evidencia:** para el método Transit, `AVG(pl_orbper)` supera los 30 días arrastrado por outliers, mientras que `MEDIAN(pl_orbper)` ≈ 5.8 días, valor más representativo de los planetas de tránsito conocidos.
+
+---
+
+## D5: Validar cardinalidad antes de un JOIN
+
+- **Fecha:** 2026-02-21
+- **Decisión:** Antes de hacer JOIN con cualquier tabla, verificar que la clave de la dimensión sea única (1 fila por clave) usando un conteo de duplicados.
+- **Razón:** Si la dimensión tiene filas duplicadas por clave, el JOIN multiplica las filas de la fact table silenciosamente, generando datos falsos que inflan cualquier agregación (sumas, promedios, conteos). Esto es un error difícil de detectar a simple vista.
+- **Alternativas rechazadas:**
+  - Confiar en que la tabla ya es única sin verificar → no detecta duplicados introducidos en el ETL.
+  - Usar `SELECT DISTINCT` directamente en el JOIN sin diagnosticar → oculta el problema en lugar de resolverlo.

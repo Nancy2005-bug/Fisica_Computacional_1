@@ -49,6 +49,12 @@ python -m src.pipelines.silver_to_gold
 
 * :white_check_mark: W02 – SQL esencial I en DuckDB (SELECT/WHERE/GROUP BY/NULLs) 
 
+* :white_check_mark: W03 – SQL esencial II (JOINs + CTEs) y cardinalidad práctica 
+
+## Pendientes u Opcionales
+
+* :o: DEMO (capstone, opcional) — CTE + Window Functions (estilo “heroes”)
+
 ---
 
 ## Notas

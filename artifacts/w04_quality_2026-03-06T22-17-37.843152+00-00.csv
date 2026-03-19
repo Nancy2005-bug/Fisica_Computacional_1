@@ -1,0 +1,4 @@
+run_ts,check_name,metric_value
+2026-03-06T22:17:37.843152+00:00,nulls_pl_name,0
+2026-03-06T22:17:37.843152+00:00,nulls_hostname,0
+2026-03-06T22:17:37.843152+00:00,bad_pl_rade_range,6

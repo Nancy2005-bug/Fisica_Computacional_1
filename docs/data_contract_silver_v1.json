@@ -1,0 +1,56 @@
+{
+  "dataset": "nasa_exoplanets_pscomppars",
+  "version": "1.0.0",
+  "bronze": {
+    "table": "raw_ps",
+    "note": "Bronze-lite (Core 16 columnas)"
+  },
+  "silver": {
+    "tables": [
+      "silver_planet",
+      "dim_host_full",
+      "fact_planet"
+    ],
+    "grain_fact": "1 fila \u2248 1 planeta (pl_name)",
+    "keys": {
+      "fact_planet": [
+        "pl_name"
+      ],
+      "dim_host_full": [
+        "hostname"
+      ]
+    },
+    "core_columns": [
+      "pl_name",
+      "hostname",
+      "discoverymethod",
+      "disc_year",
+      "sy_snum",
+      "sy_pnum",
+      "sy_dist",
+      "ra",
+      "dec",
+      "pl_orbper",
+      "pl_rade",
+      "pl_bmasse",
+      "pl_eqt",
+      "st_teff",
+      "st_rad",
+      "st_mass"
+    ],
+    "quality_minimum": [
+      "pl_name NOT NULL",
+      "hostname NOT NULL",
+      "disc_year in [1980,2026] if not null",
+      "pl_rade in (0,30] if not null",
+      "dim_host_full: hostname unique"
+    ]
+  },
+  "gold": {
+    "views": [
+      "gold_by_method",
+      "gold_by_host"
+    ]
+  },
+  "notes": "Si cambias columnas/reglas, incrementa version."
+}

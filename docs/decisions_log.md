@@ -80,3 +80,33 @@ LIMIT 10;
 | Kepler-11  | 6   |
 | HIP 41378  | 6   |
 | HD 219134  | 6   |
+
+## D6: Selección de 12 columnas para reporte de calidad W04A
+
+- **Fecha:** 2026-03-06
+- **Decisión:** Usar las columnas `pl_name`, `hostname`, `disc_year`, `discoverymethod`, `pl_orbper`, `pl_rade`, `pl_bmasse`, `sy_dist`, `ra`, `dec`, `sy_snum`, `sy_pnum` para el reporte de nulos.
+- **Razón:** Cubren los 4 grupos clave del dataset (identificación, sistema, órbita y posición). Son las columnas más usadas en JOINs y agregaciones downstream, por lo que tener nulos en ellas tendría el mayor impacto en análisis posteriores.
+- **Alternativas rechazadas:**
+  - Incluir columnas estelares (`st_teff`, `st_rad`, `st_mass`) → tienen muchos nulos esperados y menos impacto en la granularidad del planeta.
+  - Revisar todas las columnas → excede el alcance del reporte mínimo viable.
+- **Evidencia:** Output de TU TURNO 1 en W04A — tabla de nulos ordenada por `nulls DESC`. `pl_name` y `hostname` resultaron con 0 nulos ✅; columnas como `pl_bmasse` y `sy_dist` mostraron los mayores porcentajes de nulos.
+
+---
+
+## D7: Reglas Silver aplicadas en `silver_planet`
+
+- **Fecha:** 2026-03-06
+- **Decisión:** Aplicar las siguientes reglas de filtrado al construir `silver_planet` desde `raw_ps`:
+  1. `pl_name IS NOT NULL`
+  2. `hostname IS NOT NULL`
+  3. `disc_year` en [1980, 2026] si no es nulo
+  4. `pl_rade` en (0, 30] si no es nulo
+  5. `pl_bmasse > 0` si no es nulo
+  6. `pl_orbper > 0` si no es nulo *(regla extra v1.0.1)*
+- **Razón:** Solo se filtran valores **físicamente imposibles** (negativos o cero) y años fuera de rango. Los nulos se toleran para no perder cobertura innecesariamente — un nulo es "dato desconocido", no un dato erróneo.
+- **Alternativas rechazadas:**
+  - Filtrar filas con cualquier nulo → eliminaría la mayoría del dataset dado el alto porcentaje de nulos en `pl_bmasse` y `sy_dist`.
+  - No filtrar nada → los 6 planetas con `pl_rade > 30` distorsionarían promedios en la capa Gold.
+- **Evidencia:** `SELECT COUNT(*) AS n_rows, COUNT(DISTINCT pl_name) AS n_pl FROM silver_planet` confirma que `n_rows ≈ n_pl` (sin duplicados) y que las filas filtradas corresponden exactamente a los 6 detectados en el check `bad_pl_rade_range`.
+
+---

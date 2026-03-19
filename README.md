@@ -49,7 +49,9 @@ python -m src.pipelines.silver_to_gold
 
 * :white_check_mark: W02 – SQL esencial I en DuckDB (SELECT/WHERE/GROUP BY/NULLs) 
 
-* :white_check_mark: W03 – SQL esencial II (JOINs + CTEs) y cardinalidad práctica 
+* :white_check_mark: W03 – SQL esencial II (JOINs + CTEs) y cardinalidad práctica
+
+* :white_check_mark: W04A — Data Contract v1 + Calidad mínima (checks sí o sí) y W04B — Construyendo **Silver** (schema estable) + primeras vistas **Gold**.
 
 ## Pendientes u Opcionales
 

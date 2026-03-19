@@ -1,0 +1,40 @@
+{
+  "dataset": "nasa_exoplanets_pscomppars",
+  "version": "1.0.0",
+  "table_bronze": "raw_ps",
+  "grain": "1 fila ~ 1 planeta (pl_name) en cat\u00e1logo",
+  "primary_key_candidate": [
+    "pl_name"
+  ],
+  "required_columns": [
+    "pl_name",
+    "hostname"
+  ],
+  "quality_checks": [
+    {
+      "name": "pk_unique_pl_name",
+      "type": "uniqueness",
+      "threshold": 0,
+      "metric": "n_duplicates"
+    },
+    {
+      "name": "nulls_pl_name",
+      "type": "completeness",
+      "threshold": 0,
+      "metric": "n_nulls"
+    },
+    {
+      "name": "nulls_hostname",
+      "type": "completeness",
+      "threshold": 0,
+      "metric": "n_nulls"
+    },
+    {
+      "name": "disc_year_range",
+      "type": "validity",
+      "threshold": 0,
+      "metric": "n_out_of_range"
+    }
+  ],
+  "notes": "Contrato v1: checks m\u00ednimos para no romper JOINs/agrupaciones."
+}

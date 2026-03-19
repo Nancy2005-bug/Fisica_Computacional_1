@@ -53,6 +53,8 @@ python -m src.pipelines.silver_to_gold
 
 * :white_check_mark: W04A — Data Contract v1 + Calidad mínima (checks sí o sí) y W04B — Construyendo **Silver** (schema estable) + primeras vistas **Gold**.
 
+* :white_check_mark: W04A — Cómo “piensa” el motor: **EXPLAIN**, cardinalidad y performance (DuckDB).
+
 ## Pendientes u Opcionales
 
 * :o: DEMO (capstone, opcional) — CTE + Window Functions (estilo “heroes”)

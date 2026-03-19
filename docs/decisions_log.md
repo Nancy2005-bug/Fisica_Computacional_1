@@ -110,3 +110,30 @@ LIMIT 10;
 - **Evidencia:** `SELECT COUNT(*) AS n_rows, COUNT(DISTINCT pl_name) AS n_pl FROM silver_planet` confirma que `n_rows ≈ n_pl` (sin duplicados) y que las filas filtradas corresponden exactamente a los 6 detectados en el check `bad_pl_rade_range`.
 
 ---
+
+## D8: Reescritura de consulta para reducir costo de lectura
+
+- **Fecha:** 2026-03-19
+- **Decisión:** Reemplazar `SELECT *` por `SELECT pl_name, hostname, disc_year`
+  en consultas de filtrado sobre `fact_planet`.
+- **Razón:** En almacenamiento columnar (DuckDB), cada columna se lee de forma
+  independiente desde disco. `SELECT *` obliga al motor a leer las 8 columnas
+  de `fact_planet`, aunque la consulta solo necesite 3. Reducir las columnas
+  proyectadas reduce directamente el I/O sin cambiar la lógica ni la cardinalidad.
+- **Alternativas rechazadas:**
+  - Mantener `SELECT *` por comodidad → costo de lectura innecesariamente alto,
+    escalaría mal con datasets grandes.
+  - Crear una vista pre-filtrada → agrega complejidad innecesaria para este caso.
+- **Evidencia:** Comparación de planes `EXPLAIN` (TU TURNO 2, W04A):
+
+| | Plan A (`SELECT *`) | Plan B (`SELECT skinny`) |
+|---|---|---|
+| Columnas leídas en SCAN | 8 | 3 |
+| Cardinalidad estimada | ~1,220 | ~1,220 |
+| Reducción de I/O | — | ~62% menos columnas |
+
+Ambos planes tienen estructura idéntica (`SEQ_SCAN → PROJECTION`) y la misma
+cardinalidad, confirmando que la diferencia es exclusivamente de ancho de banda
+de lectura, no de filas procesadas.
+
+---

@@ -114,15 +114,10 @@ LIMIT 10;
 ## D8: Reescritura de consulta para reducir costo de lectura
 
 - **Fecha:** 2026-03-19
-- **Decisión:** Reemplazar `SELECT *` por `SELECT pl_name, hostname, disc_year`
-  en consultas de filtrado sobre `fact_planet`.
-- **Razón:** En almacenamiento columnar (DuckDB), cada columna se lee de forma
-  independiente desde disco. `SELECT *` obliga al motor a leer las 8 columnas
-  de `fact_planet`, aunque la consulta solo necesite 3. Reducir las columnas
-  proyectadas reduce directamente el I/O sin cambiar la lógica ni la cardinalidad.
+- **Decisión:** Reemplazar `SELECT *` por `SELECT pl_name, hostname, disc_year` en consultas de filtrado sobre `fact_planet`.
+- **Razón:** En almacenamiento columnar (DuckDB), cada columna se lee de forma   independiente desde disco. `SELECT *` obliga al motor a leer las 8 columnas de `fact_planet`, aunque la consulta solo necesite 3. Reducir las columnas proyectadas reduce directamente el I/O sin cambiar la lógica ni la cardinalidad.
 - **Alternativas rechazadas:**
-  - Mantener `SELECT *` por comodidad → costo de lectura innecesariamente alto,
-    escalaría mal con datasets grandes.
+  - Mantener `SELECT *` por comodidad → costo de lectura innecesariamente alto, escalaría mal con datasets grandes.
   - Crear una vista pre-filtrada → agrega complejidad innecesaria para este caso.
 - **Evidencia:** Comparación de planes `EXPLAIN` (TU TURNO 2, W04A):
 
@@ -135,5 +130,33 @@ LIMIT 10;
 Ambos planes tienen estructura idéntica (`SEQ_SCAN → PROJECTION`) y la misma
 cardinalidad, confirmando que la diferencia es exclusivamente de ancho de banda
 de lectura, no de filas procesadas.
+
+---
+
+## D9: Surrogate key + FK en modelo dim/fact
+
+- **Fecha:** 2026-03-20
+- **Decisión:** Usar `host_id` (entero generado con `ROW_NUMBER() OVER (ORDER BY hostname)`) como clave primaria en `dim_host_sk` y como Foreign Key en `fact_planet_sk`, en lugar de usar `hostname` directamente como clave de join.
+- **Razón:** El surrogate key es un entero pequeño, nunca cambia y es más eficiente para índices y joins que un VARCHAR largo. Permite evolucionar el modelo (ej. renombrar una estrella) sin romper la integridad referencial. Es el estándar en modelado dimensional (Kimball).
+- **Alternativas rechazadas:**
+  - Usar `hostname` como FK directamente → el VARCHAR es más costoso en joins y si el nombre cambia, requiere actualizar todas las filas de la fact table.
+  - No usar FK y confiar en el JOIN → no hay garantía de integridad referencial; planetas huérfanos podrían aparecer silenciosamente.
+- **Evidencia:**
+  - `COUNT(*) == COUNT(DISTINCT hostname)` en `dim_host_sk` ✅
+  - `orphan_rows == 0` en `fact_planet_sk` ✅
+
+---
+
+## D10: Gold outputs y selección de métricas
+
+- **Fecha:** 2026-03-20
+- **Decisión:** Crear dos vistas Gold: `gold_by_discoverymethod` y `gold_by_host`, con las métricas `n_planets`, `avg_radius_earth`, `avg_mass_earth`, `first_year`/`last_year` (para método) y `sy_dist`, `ra`, `dec` (para host).
+- **Razón:** Las dos vistas responden las preguntas científicas centrales del dataset: ¿qué métodos dominan el descubrimiento de exoplanetas? y ¿qué estrellas tienen más planetas y dónde están? Las métricas de radio y masa permiten comparar qué tipo de planeta encuentra cada método; `sy_dist`, `ra` y `dec` habilitan análisis espaciales por estrella.
+- **Alternativas rechazadas:**
+  - Un solo Gold agregado por ambas dimensiones → mezcla grains distintos y dificulta la interpretación.
+  - Usar tablas en lugar de vistas → las vistas son más livianas y siempre reflejan el estado actual de `fact_planet_sk`; no hay necesidad de materializar para este volumen.
+- **Evidencia:**
+  - `artifacts/gold_by_discoverymethod.csv` exportado.
+  - `artifacts/gold_by_host.csv` exportado.
 
 ---

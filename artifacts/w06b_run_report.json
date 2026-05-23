@@ -1,0 +1,20 @@
+{
+  "stages": [
+    {
+      "mode": "silver",
+      "seconds": 0.1148
+    },
+    {
+      "mode": "dims",
+      "seconds": 1.0778
+    },
+    {
+      "mode": "gold",
+      "seconds": 0.0144
+    },
+    {
+      "mode": "export",
+      "seconds": 0.0304
+    }
+  ]
+}

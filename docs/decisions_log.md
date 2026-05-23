@@ -142,8 +142,8 @@ de lectura, no de filas procesadas.
   - Usar `hostname` como FK directamente → el VARCHAR es más costoso en joins y si el nombre cambia, requiere actualizar todas las filas de la fact table.
   - No usar FK y confiar en el JOIN → no hay garantía de integridad referencial; planetas huérfanos podrían aparecer silenciosamente.
 - **Evidencia:**
-  - `COUNT(*) == COUNT(DISTINCT hostname)` en `dim_host_sk` ✅
-  - `orphan_rows == 0` en `fact_planet_sk` ✅
+  - `COUNT(*) == COUNT(DISTINCT hostname)` en `dim_host_sk` 
+  - `orphan_rows == 0` en `fact_planet_sk` 
 
 ---
 
@@ -158,5 +158,125 @@ de lectura, no de filas procesadas.
 - **Evidencia:**
   - `artifacts/gold_by_discoverymethod.csv` exportado.
   - `artifacts/gold_by_host.csv` exportado.
+
+---
+
+## D11: Umbral de performance del pipeline (W06B)
+
+- **Fecha:** 2026-05-14
+- **Decisión:** Definir umbrales máximos aceptables de tiempo por etapa del pipeline `w06_pipeline` como contrato de performance.
+- **Razón:** Sin umbrales explícitos, una regresión de performance (dataset más grande, cambio en lógica de ETL) pasaría desapercibida. Fijar umbrales convierte el tiempo de ejecución en una métrica verificable que puede monitorearse en futuras ejecuciones (DDIA Cap. 1 — Operability).
+- **Alternativas rechazadas:**
+  - No medir tiempos → sin visibilidad de performance, imposible detectar regresiones.
+  - Un solo umbral total para todo el pipeline → no permite identificar qué etapa específica es el cuello de botella.
+- **Métrica y umbral:**
+
+| etapa  | umbral máximo | corrida 1 | corrida 2 | ¿Cumple? |
+|--------|---------------|-----------|-----------|----------|
+| silver | < 3s          | 0.0592s   | 0.1148s   | Si        |
+| dims   | < 5s          | 3.5974s   | 1.0778s   | Si        |
+| gold   | < 2s          | 0.0132s   | 0.0144s   | Si        |
+| export | < 2s          | 0.0260s   | 0.0304s   | Si        |
+
+- **Evidencia:** `artifacts/w06b_run_report.json` y `artifacts/w06b_stage_timings.csv`
+- **Observación:** La etapa `dims` domina el tiempo total en ambas corridas por reconstruir 4 tablas con JOIN incluido. La segunda corrida fue un **70% más rápida** en `dims` (3.5974s → 1.0778s) gracias al page cache del SO y a que DuckDB ya tenía el archivo inicializado.
+
+---
+
+## D12: Normalización de `discoverymethod` con tabla de mapeo (W08)
+
+- **Fecha:** 2026-05-14
+- **Decisión:** Crear una tabla `method_map(raw_method, canonical_method)` para traducir los 11 valores crudos de `discoverymethod` a un formato canónico `snake_case` en lugar de limpiarlos con expresiones SQL directamente en la vista Silver.
+- **Razón:** Separar la lógica de mapeo del ETL en una tabla propia hace el proceso auditable y fácil de extender: agregar un nuevo método de descubrimiento solo requiere un `INSERT`, no modificar la query de Silver. Además, un `LEFT JOIN` + `COALESCE` garantiza que los métodos sin mapeo explícito no se pierdan — caen al fallback `LOWER(TRIM(...))`.
+- **Alternativas rechazadas:**
+  - `REPLACE()` / `CASE WHEN` inline en la query → frágil, difícil de mantener con 11+ métodos.
+  - Filtrar filas con métodos no reconocidos → pérdida de datos innecesaria.
+- **Evidencia:**
+
+| raw_method | canonical_method |
+|---|---|
+| Transit | transit |
+| Radial Velocity | radial_velocity |
+| Imaging | imaging |
+| Microlensing | microlensing |
+| Transit Timing Variations | transit_timing_variations |
+| Eclipse Timing Variations | eclipse_timing_variations |
+| Astrometry | astrometry |
+| Orbital Brightness Modulation | orbital_brightness_modulation |
+| Pulsar Timing | pulsar_timing |
+| Pulsation Timing Variations | pulsation_timing_variations |
+
+- `silver_planet_v2` resultó con 6101 filas, 0 hosts nulos, 11 métodos canónicos 
+- `Disk Kinematics` (1 planeta, sin mapeo explícito) conservado vía fallback `COALESCE`
+
+---
+
+## D13: Modelo M:N con link table + PK compuesta + FK (W08)
+
+- **Fecha:** 2026-05-14
+- **Decisión:** Modelar la relación muchos-a-muchos entre planetas y métodos de descubrimiento usando una **link table** (`planet_method_demo`) con **PK compuesta `(planet_id, method_id)`** y **FK** a ambas tablas dimensionales.
+- **Razón:** Una relación M:N no puede representarse correctamente con una sola tabla — requiere una tabla puente. La PK compuesta garantiza que una misma combinación (planeta, método) nunca se duplique. Las FK garantizan integridad referencial: no pueden existir registros en la link table que apunten a planetas o métodos inexistentes.
+- **Alternativas rechazadas:**
+  - Columna `methods` como lista de strings en la tabla de planetas → no es normalizable, imposible de filtrar con SQL estándar.
+  - Link table sin PK compuesta → permite duplicados silenciosos que inflan conteos.
+- **Evidencia:**
+  - Check `HAVING COUNT(*) > 1` sobre `planet_method_demo` retornó **0 filas** 
+  - Q1: `transit` y `radial_velocity` tienen 3 planetas cada uno
+  - Q2: `Kepler-22b` y `HD 209458 b` tienen 2 métodos cada uno (demostración M:N real)
+
+---
+
+## D14: `TRY_CAST` en lugar de `CAST` para `disc_year` (W09)
+
+- **Fecha:** 2026-05-14
+- **Decisión:** Usar `TRY_CAST(disc_year AS INTEGER)` en `silver_planet_v3` en vez de `CAST(disc_year AS INTEGER)`.
+- **Razón:** `CAST` lanza una excepción si el valor no puede convertirse, lo que detendría la creación entera de la tabla. `TRY_CAST` retorna `NULL` de forma silenciosa para valores inválidos, permitiendo que el pipeline continúe y que el flag `disc_year_bad` identifique los casos problemáticos. Sigue el principio de DDIA Cap. 1 — tolerancia a fallos en los datos.
+- **Alternativas rechazadas:**
+  - `CAST` directo → rompe el pipeline ante cualquier valor no casteable.
+  - Filtrar filas con `disc_year` inválido antes del CAST → pérdida de datos potencialmente recuperables.
+- **Evidencia:** `silver_planet_v3` resultó con 6101 filas y `disc_year_bad = 1`, sin errores de ejecución 
+
+---
+
+## D15: Quality Gates como tabla `quality_events` con semáforo PASS/WARN/FAIL (W09)
+
+- **Fecha:** 2026-05-14
+- **Decisión:** Persistir los resultados de los checks de calidad en una tabla `quality_events(ts_utc, check_name, status, metric_value, details)` con estados de tres niveles: PASS, WARN, FAIL.
+- **Razón:** Registrar los checks en una tabla crea un historial auditable. El timestamp `ts_utc` permite detectar regresiones a lo largo del tiempo. El modelo de 3 niveles evita falsos negativos (WARN no detiene el pipeline) y falsos positivos (FAIL solo cuando el impacto es crítico).
+- **Alternativas rechazadas:**
+  - Solo imprimir checks en stdout → sin persistencia, imposible auditar ejecuciones pasadas.
+  - Modelo binario PASS/FAIL → demasiado rígido para un dataset con casos borde aislados.
+- **Evidencia:**
+
+| check_name | status | metric_value |
+|---|---|---|
+| canonical_method_count | PASS | 11.0 |
+| disc_year_bad_count | WARN | 1.0 |
+| null_hostname_canon | PASS | 0.0 |
+| row_count_silver_v3 | PASS | 6101.0 |
+
+**Resultado global W09:** 3 PASS , 1 WARN , 0 FAIL — pipeline aceptable.
+
+---
+
+## D16: Particionamiento por `disc_era` en `silver_planet_v3` (W10)
+
+- **Fecha:** 2026-05-14
+- **Decisión:** Particionar `silver_planet_v3` por `disc_era` (4 valores: `pre-2000`, `2000s`, `2010s`, `2020s`), generando un CSV por partición bajo `artifacts/silver_partitioned/disc_era=<valor>/data.csv`.
+- **Razón:** `disc_era` tiene cardinalidad baja (4 valores), representa un patrón de consulta real (análisis por período histórico de descubrimiento) y produce particiones de tamaño manejable. El partition pruning permite que consultas como `WHERE disc_era = '2010s'` eviten leer ~40% del dataset.
+- **Alternativas rechazadas:**
+  - Particionar por `discoverymethod_canon` → distribución muy desigual (transit: 4500 vs disk_kinematics: 1), genera small files severos
+  - No particionar → sin beneficio de pruning para consultas por era temporal
+- **Riesgo identificado:** La partición `pre-2000` con solo 30 filas es un caso de _small files problem_. En un dataset más grande o en un sistema distribuido, esta partición añadiría overhead sin beneficio real de pruning.
+- **Evidencia:**
+
+| disc_era | n_planets | % del total |
+|----------|-----------|-------------|
+| 2000s    | 378       | 6.2%        |
+| 2010s    | 3681      | 60.3%       |
+| 2020s    | 2012      | 33.0%       |
+| pre-2000 | 30        | 0.5%        |
+
+- `artifacts/w10b_explain_analyze_pruning.txt` — evidencia de `EXPLAIN ANALYZE` con filtro `WHERE disc_era = '2010s'` 
 
 ---

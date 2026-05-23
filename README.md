@@ -57,6 +57,14 @@ python -m src.pipelines.silver_to_gold
 
 * :white_check_mark: W06A — Diseño relacional mínimo: **PK/FK**, llaves surrogate y “star schema” (DuckDB).
 
+* :white_check_mark: W07B
+
+* :white_check_mark: W08
+
+* :white_check_mark: W09
+
+* :white_check_mark: W10
+
 ## Pendientes u Opcionales
 
 * :o: DEMO (capstone, opcional) — CTE + Window Functions (estilo “heroes”)

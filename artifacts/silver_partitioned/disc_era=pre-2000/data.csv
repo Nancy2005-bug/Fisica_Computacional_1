@@ -1,0 +1,31 @@
+pl_name,hostname,hostname_canon,discoverymethod,discoverymethod_canon,disc_year,disc_year_int,disc_year_bad,disc_era,pl_orbper,pl_rade,pl_bmasse,pl_eqt,sy_dist,ra,dec
+GJ 876 b,GJ 876,gj 876,Radial Velocity,radial velocity,1998,1998,false,pre-2000,61.1166,13.3,723.2235,,4.67517,343.3239737,-14.2665958
+PSR B1257+12 b,PSR B1257+12,psr b1257+12,Pulsar Timing,pulsar timing,1994,1994,false,pre-2000,25.262,0.338,0.02,,600.0,195.0149029,12.6823534
+PSR B1257+12 d,PSR B1257+12,psr b1257+12,Pulsar Timing,pulsar timing,1992,1992,false,pre-2000,98.2114,1.8,3.9,,600.0,195.0149029,12.6823534
+HD 187123 b,HD 187123,hd 187123,Radial Velocity,radial velocity,1998,1998,false,pre-2000,3.0965828,14.2,166.218,,45.9548,296.7428786,34.41899
+HD 168443 b,HD 168443,hd 168443,Radial Velocity,radial velocity,1998,1998,false,pre-2000,58.11187,12.6,2424.3950886,,39.6245,275.0159879,-9.5966905
+HD 217107 b,HD 217107,hd 217107,Radial Velocity,radial velocity,1998,1998,false,pre-2000,7.12682,13.6,413.179,,20.0619,344.5647243,-2.3954489
+HD 209458 b,HD 209458,hd 209458,Radial Velocity,radial velocity,1999,1999,false,pre-2000,3.52474859,15.58051,232.0159,1459.0,48.3016,330.7950219,18.8842419
+47 UMa b,47 UMa,47 uma,Radial Velocity,radial velocity,1996,1996,false,pre-2000,1078.0,13.2,804.08,,13.7967,164.8647611,40.4304931
+55 Cnc b,55 Cnc,55 cnc,Radial Velocity,radial velocity,1996,1996,false,pre-2000,14.651552,13.9,263.9785,700.0,12.5855,133.1468373,28.3298154
+HR 810 b,HR 810,hr 810,Radial Velocity,radial velocity,1999,1999,false,pre-2000,302.79999,12.7,1970.5361234,,17.3181,40.6417178,-50.7993484
+rho CrB b,rho CrB,rho crb,Radial Velocity,radial velocity,1997,1997,false,pre-2000,39.8438,13.7,347.38644885,614.0,17.4671,240.2600639,33.3001861
+ups And b,ups And,ups and,Radial Velocity,radial velocity,1996,1996,false,pre-2000,4.617033,14.0,218.531,,13.4054,24.1983534,41.4038147
+ups And c,ups And,ups and,Radial Velocity,radial velocity,1999,1999,false,pre-2000,241.258,12.3,4443.24112986,,13.4054,24.1983534,41.4038147
+ups And d,ups And,ups and,Radial Velocity,radial velocity,1999,1999,false,pre-2000,1276.46,12.5,3257.74117175,,13.4054,24.1983534,41.4038147
+HD 89744 b,HD 89744,hd 89744,Radial Velocity,radial velocity,1999,1999,false,pre-2000,256.78,12.6,2653.8805,,38.6364,155.5433193,41.2289354
+HD 195019 b,HD 195019,hd 195019,Radial Velocity,radial velocity,1998,1998,false,pre-2000,18.20132,13.0,1264.9634,,37.6681,307.0792427,18.7692509
+HD 130322 b,HD 130322,hd 130322,Radial Velocity,radial velocity,1999,1999,false,pre-2000,10.70871,13.7,365.49,720.0,31.8766,221.8857975,-0.2820782
+HD 222582 b,HD 222582,hd 222582,Radial Velocity,radial velocity,1999,1999,false,pre-2000,572.38,12.6,2660.2371,,42.1586,355.4640788,-5.9862379
+HD 134987 b,HD 134987,hd 134987,Radial Velocity,radial velocity,1999,1999,false,pre-2000,258.17999,13.5,511.7063,,26.1804,228.3675397,-25.3096721
+16 Cyg B b,16 Cyg B,16 cyg b,Radial Velocity,radial velocity,1996,1996,false,pre-2000,798.5,13.5,565.7374,,21.1397,295.4656422,50.5168243
+GJ 86 b,GJ 86,gj 86,Radial Velocity,radial velocity,1999,1999,false,pre-2000,15.76491,12.9,1404.8086,,10.7836,32.6224785,-50.8209945
+HD 75289 b,HD 75289,hd 75289,Radial Velocity,radial velocity,1999,1999,false,pre-2000,3.50927,14.2,155.7367,1260.0,29.1158,131.9181715,-41.7377748
+HD 192263 b,HD 192263,hd 192263,Radial Velocity,radial velocity,1999,1999,false,pre-2000,24.3556,14.2,177.9848,486.0,19.6359,303.4990864,-0.8657574
+HD 210277 b,HD 210277,hd 210277,Radial Velocity,radial velocity,1998,1998,false,pre-2000,442.19,13.6,410.0007,,21.2985,332.3748117,-7.5505962
+70 Vir b,70 Vir,70 vir,Radial Velocity,radial velocity,1996,1996,false,pre-2000,116.688,12.6,2380.45,,17.9011,202.1064898,13.7763085
+HD 10697 b,HD 10697,hd 10697,Radial Velocity,radial velocity,1999,1999,false,pre-2000,1075.3799,12.8,1825.2885414,,33.1205,26.2324076,20.0826974
+51 Peg b,51 Peg,51 peg,Radial Velocity,radial velocity,1995,1995,false,pre-2000,4.230785,14.3,146.2018,,15.4614,344.3675399,20.7690958
+HD 177830 b,HD 177830,hd 177830,Radial Velocity,radial velocity,1999,1999,false,pre-2000,410.10001,13.5,537.1327,,62.7674,286.3363574,25.9204327
+tau Boo b,tau Boo,tau boo,Radial Velocity,radial velocity,1996,1996,false,pre-2000,3.3124568,12.8,1891.0,,15.6521,206.8134593,17.4571647
+PSR B1257+12 c,PSR B1257+12,psr b1257+12,Pulsar Timing,pulsar timing,1992,1992,false,pre-2000,66.5419,1.91,4.3,,600.0,195.0149029,12.6823534
